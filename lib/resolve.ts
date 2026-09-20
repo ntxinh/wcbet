@@ -1,12 +1,42 @@
-import type { matches } from './schema'
+import { eq, sql } from 'drizzle-orm'
+import { db } from './db'
+import { matches, predictions } from './schema'
+import { scorePrediction } from './scoring'
 
 export type Match = typeof matches.$inferSelect
 
-// Stub — Task 3 implements scoring + status update.
 export async function resolveMatch(
-  _matchId: string,
-  _homeScore: number,
-  _awayScore: number,
+  matchId: string,
+  homeScore: number,
+  awayScore: number,
 ): Promise<Match> {
-  throw new Error('not implemented')
+  return db.transaction(async (tx) => {
+    const [match] = await tx
+      .update(matches)
+      .set({ homeScore, awayScore, status: 'finished' })
+      .where(eq(matches.id, matchId))
+      .returning()
+    if (!match) throw new Error(`match not found: ${matchId}`)
+
+    const preds = await tx.select().from(predictions).where(eq(predictions.matchId, matchId))
+    const userIds = new Set<string>()
+    for (const p of preds) {
+      const points = scorePrediction(
+        { home: p.predictedHomeScore, away: p.predictedAwayScore },
+        { home: homeScore, away: awayScore },
+      )
+      await tx.update(predictions).set({ pointsEarned: points }).where(eq(predictions.id, p.id))
+      userIds.add(p.userId)
+    }
+
+    // recompute totals — idempotent, safe to re-resolve a match
+    for (const userId of userIds) {
+      await tx.execute(
+        sql`update users set total_points = (
+          select coalesce(sum(points_earned), 0) from predictions where user_id = ${userId}
+        ) where id = ${userId}`,
+      )
+    }
+    return match
+  })
 }
