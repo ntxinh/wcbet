@@ -1,6 +1,6 @@
 import { and, asc, eq, isNull } from 'drizzle-orm'
 import { z } from 'zod'
-import { uuidOrNull } from '@/lib/api'
+import { jsonError, uuidOrNull } from '@/lib/api'
 import { db } from '@/lib/db'
 import { matches, predictions } from '@/lib/schema'
 
@@ -9,7 +9,7 @@ const statusSchema = z.enum(['upcoming', 'in_progress', 'finished']).optional()
 export async function GET(req: Request) {
   const url = new URL(req.url)
   const status = statusSchema.safeParse(url.searchParams.get('status') ?? undefined)
-  if (!status.success) return Response.json({ error: 'Invalid status' }, { status: 400 })
+  if (!status.success) return jsonError(400, 'Invalid status')
   const userId = uuidOrNull(req.headers.get('x-user-id'))
   const rows = await db
     .select({

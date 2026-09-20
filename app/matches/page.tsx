@@ -19,7 +19,11 @@ export default function MatchesPage() {
   const status = useFilterStore((s) => s.status)
   const setStatus = useFilterStore((s) => s.setStatus)
 
-  const { data: matches, isLoading } = useQuery({
+  const {
+    data: matches,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['matches', status],
     queryFn: () =>
       api.get('matches', { searchParams: status === 'all' ? {} : { status } }).json<Match[]>(),
@@ -38,6 +42,7 @@ export default function MatchesPage() {
       </Tabs>
       <div className="grid gap-4">
         {isLoading && ['s1', 's2', 's3'].map((k) => <Skeleton key={k} className="h-40 w-full" />)}
+        {isError && <p className="text-muted-foreground text-sm">Failed to load matches.</p>}
         {matches?.map((m) => (
           <MatchCard key={m.id} match={m} />
         ))}

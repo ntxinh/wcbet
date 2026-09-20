@@ -95,6 +95,7 @@ export const openApiSpec = {
                     required: ['predictedHomeScore', 'predictedAwayScore', 'pointsEarned'],
                   },
                 },
+                required: [...matchSchema.required, 'prediction'],
               },
             }),
           },

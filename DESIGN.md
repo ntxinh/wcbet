@@ -12,7 +12,7 @@ erDiagram
     users {
         uuid id PK
         text name UK "unique, 1-30 chars"
-        text image "nullable, unused"
+        text image "nullable, shown on leaderboard"
         int total_points "recomputed sum(points_earned)"
         timestamptz created_at
     }
@@ -29,8 +29,8 @@ erDiagram
         uuid id PK
         uuid user_id FK
         uuid match_id FK
-        int predicted_home_score "0-20"
-        int predicted_away_score "0-20"
+        int predicted_home_score "0-20 (zod/API bound, not a DB constraint)"
+        int predicted_away_score "0-20 (zod/API bound, not a DB constraint)"
         int points_earned "null until resolved"
     }
 ```
@@ -102,7 +102,7 @@ Full request/response shapes: `docs/API.md` or `/api/docs` interactively.
 
 ## Frontend data flow
 
-- ky instance (`lib/api-client.ts`): `prefixUrl /api` + hook injecting `x-user-id` from `useUserStore`.
+- ky instance (`lib/api-client.ts`): `prefix /api` + hook injecting `x-user-id` from `useUserStore`.
 - TanStack Query keys:
   - `['matches', status]` — match list per status tab (`all|upcoming|in_progress|finished`, zustand `useFilterStore`)
   - `['leaderboard']` — leaderboard page

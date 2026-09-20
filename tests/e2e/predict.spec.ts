@@ -13,7 +13,9 @@ test('user can log in with a name and submit a prediction', async ({ page }) => 
   await expect(card).toBeVisible()
   await card.getByTestId('home-score').fill('2')
   await card.getByTestId('away-score').fill('1')
-  const saved = page.waitForResponse((r) => r.url().includes('/api/predictions') && r.ok())
+  const saved = page.waitForResponse(
+    (r) => r.url().includes('/api/predictions') && r.request().method() === 'POST' && r.ok(),
+  )
   await card.getByTestId('save-prediction').click()
   await saved
 

@@ -7,7 +7,11 @@ import { api } from '@/lib/api-client'
 import type { LeaderboardEntry } from '@/lib/types'
 
 export default function LeaderboardPage() {
-  const { data: entries, isLoading } = useQuery({
+  const {
+    data: entries,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['leaderboard'],
     queryFn: () => api.get('leaderboard').json<LeaderboardEntry[]>(),
   })
@@ -16,6 +20,7 @@ export default function LeaderboardPage() {
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Leaderboard</h1>
       {isLoading && <Skeleton className="h-64 w-full" />}
+      {isError && <p className="text-muted-foreground text-sm">Failed to load leaderboard.</p>}
       {entries && <LeaderboardTable entries={entries} />}
     </div>
   )

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { jsonError } from '@/lib/api'
 import { db } from '@/lib/db'
 import { logger } from '@/lib/logger'
 import { users } from '@/lib/schema'
@@ -7,7 +8,7 @@ const bodySchema = z.object({ name: z.string().trim().min(1).max(30) })
 
 export async function POST(req: Request) {
   const parsed = bodySchema.safeParse(await req.json().catch(() => null))
-  if (!parsed.success) return Response.json({ error: 'Invalid name' }, { status: 400 })
+  if (!parsed.success) return jsonError(400, 'Invalid name')
   const [user] = await db
     .insert(users)
     .values({ name: parsed.data.name })

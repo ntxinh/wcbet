@@ -47,8 +47,17 @@ export function PredictionForm({ match }: { match: Match }) {
     e.preventDefault()
     const homeScore = Number(home)
     const awayScore = Number(away)
-    if (home === '' || away === '' || !Number.isInteger(homeScore) || !Number.isInteger(awayScore))
+    if (
+      !Number.isInteger(homeScore) ||
+      !Number.isInteger(awayScore) ||
+      homeScore < 0 ||
+      homeScore > 20 ||
+      awayScore < 0 ||
+      awayScore > 20
+    ) {
+      toast.error('Scores must be whole numbers between 0 and 20')
       return
+    }
     mutation.mutate({ homeScore, awayScore })
   }
 

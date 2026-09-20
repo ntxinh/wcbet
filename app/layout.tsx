@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         <Providers>
           <Header />
           <main className="mx-auto w-full max-w-3xl flex-1 p-4">{children}</main>
-          <Toaster />
+          <Toaster theme="system" />
         </Providers>
       </body>
     </html>

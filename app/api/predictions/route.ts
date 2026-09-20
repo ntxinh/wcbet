@@ -22,7 +22,8 @@ export async function POST(req: Request) {
 
   const [match] = await db.select().from(matches).where(eq(matches.id, matchId))
   if (!match) return jsonError(404, 'Match not found')
-  if (isLocked(match.kickoffTime)) return jsonError(409, 'Match is locked')
+  if (match.status === 'finished' || isLocked(match.kickoffTime))
+    return jsonError(409, 'Match is locked')
 
   const [prediction] = await db
     .insert(predictions)

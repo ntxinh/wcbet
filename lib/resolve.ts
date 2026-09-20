@@ -3,13 +3,13 @@ import { db } from './db'
 import { matches, predictions } from './schema'
 import { scorePrediction } from './scoring'
 
-export type Match = typeof matches.$inferSelect
+export type MatchRow = typeof matches.$inferSelect
 
 export async function resolveMatch(
   matchId: string,
   homeScore: number,
   awayScore: number,
-): Promise<Match> {
+): Promise<MatchRow> {
   return db.transaction(async (tx) => {
     const [match] = await tx
       .update(matches)
